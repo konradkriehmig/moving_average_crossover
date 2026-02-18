@@ -47,7 +47,7 @@ def fetch_klines(
     response.raise_for_status()
     
     data = response.json()
-    
+
     df = pd.DataFrame(data, columns=[
         "open_time", "open", "high", "low", "close", "volume",
         "close_time", "quote_volume", "trades", "taker_buy_base",
@@ -120,9 +120,6 @@ def save_to_parquet(df: pd.DataFrame, symbol: str):
 
 
 def fetch_and_save(symbols: list, interval: str = "1h", days_back: int = 365):
-    """
-    Main function: fetch data for multiple symbols and save.
-    """
     for symbol in symbols:
         try:
             df = fetch_full_history(symbol, interval, days_back)
@@ -137,17 +134,16 @@ def fetch_and_save(symbols: list, interval: str = "1h", days_back: int = 365):
 def main():
     # Config - start small
     symbols = [
-        "BTCUSDT",
-        "ETHUSDT", 
-        "SOLUSDT",
-        "AVAXUSDT",
-        "BNBUSDT"
+    "BTCUSDT", "ETHUSDT", "SOLUSDT", "AVAXUSDT", "BNBUSDT",
+    "ADAUSDT", "DOTUSDT", "MATICUSDT", "LINKUSDT", "ATOMUSDT",
+    "XRPUSDT", "DOGEUSDT", "LTCUSDT", "UNIUSDT", "AAVEUSDT",
+    "NEARUSDT", "APTUSDT", "ARBUSDT", "OPUSDT", "INJUSDT",
     ]
-    
+
     fetch_and_save(
         symbols=symbols,
-        interval="1h",      # hourly candles
-        days_back=365       # 1 year of data
+        interval="1h",       # hourly — fast download
+        days_back=365 * 2    # 2 years
     )
     
     # Summary
