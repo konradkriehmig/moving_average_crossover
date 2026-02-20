@@ -21,7 +21,7 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/network.json
-          parameters: location=germanywestcentral
+          parameters: location=canadacentral
           deploymentName: network
 
   storage:
@@ -42,7 +42,7 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/storage.json
-          parameters: location=germanywestcentral storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
+          parameters: location=canadacentral storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
           deploymentName: storage
 
   database:
@@ -63,7 +63,7 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/database.json
-          parameters: location=germanywestcentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=btpostgres2025
+          parameters: location=canadacentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=btpostgres2025
           deploymentName: database
 
   compute:
@@ -84,5 +84,5 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/compute.json
-          parameters: location=germanywestcentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
+          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
           deploymentName: compute
