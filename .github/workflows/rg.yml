@@ -22,4 +22,4 @@ jobs:
           inlineScript: |
             az group create \
               --name RG-backtest-enginge-distributed \
-              --location useast
+              --location eastus
