@@ -1,8 +1,8 @@
-name: Create storage
+name: Create Storage
 
 on:
   workflow_dispatch:  # Manual trigger only
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

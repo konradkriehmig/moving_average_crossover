@@ -1,4 +1,4 @@
-name: Create compute
+name: Create Compute
 
 on:
   workflow_dispatch:  # Manual trigger only

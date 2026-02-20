@@ -1,4 +1,4 @@
-name: Create databas
+name: Create Database
 
 on:
   workflow_dispatch:  # Manual trigger only
