@@ -19,7 +19,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/compute.json
           parameters: adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
           deploymentName: compute-${{ github.run_number }}
@@ -30,5 +30,5 @@ jobs:
           inlineScript: |
             echo "=== Deployment Complete ==="
             az vm list-ip-addresses \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --resource-group RG-backtest-enginge-distributed \
               --output table

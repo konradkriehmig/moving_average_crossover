@@ -20,7 +20,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/storage.json
           parameters: storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
           deploymentName: storage-${{ github.run_number }}

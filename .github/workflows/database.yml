@@ -19,7 +19,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/database.json
           parameters: administratorPassword=${{ secrets.POSTGRES_PASSWORD }}
           deploymentName: database-${{ github.run_number }}
