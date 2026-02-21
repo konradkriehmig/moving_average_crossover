@@ -4,7 +4,7 @@
   "parameters": {
     "serverName": {
       "type": "string",
-      "defaultValue": "btpostgres2025",
+      "defaultValue": "btpostgres2026",
       "metadata": {
         "description": "Name of the PostgreSQL server"
       }
