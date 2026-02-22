@@ -19,7 +19,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: backtest-rg
+          resourceGroupName: RG-backtest-engine-distributed
           template: ./infra/compute.json
           parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}"
           deploymentName: compute
