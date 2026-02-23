@@ -85,7 +85,7 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/database.json
-          parameters: location=canadacentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=btpostgres2026
+          parameters: location=canadacentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=${{ secrets.DB_NAME }}
           deploymentName: database
 
   compute:
