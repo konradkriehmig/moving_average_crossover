@@ -25,7 +25,6 @@ jobs:
               --location eastus \
               --tags project=backtest
 
-jobs:
   network:
     runs-on: ubuntu-latest
     steps:
