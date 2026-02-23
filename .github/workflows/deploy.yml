@@ -4,6 +4,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  create-rg:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            az group create \
+              --name RG-backtest-enginge-distributed \
+              --location eastus \
+              --tags project=backtest
+
+jobs:
   network:
     runs-on: ubuntu-latest
     steps:
@@ -46,7 +68,7 @@ jobs:
           deploymentName: storage
 
   database:
-    needs: storage
+    needs: network
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
