@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-rg:
+  rg:
     runs-on: ubuntu-latest
     
     steps:
@@ -26,6 +26,7 @@ jobs:
               --tags project=backtest
 
   network:
+    needs: rg
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
