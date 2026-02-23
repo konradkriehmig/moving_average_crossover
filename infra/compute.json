@@ -51,10 +51,15 @@
       "metadata": {
         "description": "Size of VMSS worker VMs"
       }
+    },
+    "transformVmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the transform VM"
+      }
     }
   },
   "variables": {
-    "transformVmName": "transform-vm",
     "transformNicName": "transform-vm-nic",
     "transformPipName": "transform-vm-pip",
     "vmssName": "backtest-workers",

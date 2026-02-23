@@ -106,6 +106,6 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/compute.json
-          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" serverName=${{ secrets.VM_NAME }}
+          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" transformVmName=${{ secrets.VM_NAME }}
           deploymentName: compute
           #delete this line
