@@ -133,7 +133,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-07-01",
-      "name": "[variables('transformVmName')]",
+      "name": "[parameters('transformVmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('transformNicName'))]"
@@ -143,7 +143,7 @@
           "vmSize": "[parameters('transformVmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('transformVmName')]",
+          "computerName": "[parameters('transformVmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": true,
