@@ -1,19 +1,21 @@
 """
 Backtest Worker
 Runs on VMSS instances. Pulls jobs from Azure Queue, runs backtests, writes results to blob.
+Uses Azure AD authentication (Managed Identity on VMSS).
 """
 
 import os
 import json
 import time
-from azure.storage.queue import QueueClient
+from azure.identity import DefaultAzureCredential
+from azure.storage.queue import QueueServiceClient
 from azure.storage.blob import BlobServiceClient
 import pandas as pd
 import numpy as np
 from io import BytesIO
 
-# Config - set these as environment variables on VMSS
-STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+# Config
+STORAGE_ACCOUNT_NAME = os.environ.get("AZURE_STORAGE_ACCOUNT_NAME")
 QUEUE_NAME = "backtest-jobs"
 DATA_CONTAINER = "raw-data"
 RESULTS_CONTAINER = "backtest-results"
@@ -22,13 +24,25 @@ RESULTS_CONTAINER = "backtest-results"
 TRADING_FEE = 0.001
 
 
+def get_credential():
+    """Get Azure AD credential (uses Managed Identity on VMSS)."""
+    return DefaultAzureCredential()
+
+
 def get_queue_client():
     """Connect to Azure Queue."""
-    return QueueClient.from_connection_string(STORAGE_CONNECTION_STRING, QUEUE_NAME)
+    credential = get_credential()
+    account_url = f"https://{STORAGE_ACCOUNT_NAME}.queue.core.windows.net"
+    queue_service = QueueServiceClient(account_url=account_url, credential=credential)
+    return queue_service.get_queue_client(QUEUE_NAME)
+
 
 def get_blob_service():
     """Connect to Azure Blob Storage."""
-    return BlobServiceClient.from_connection_string(STORAGE_CONNECTION_STRING)
+    credential = get_credential()
+    account_url = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
+    return BlobServiceClient(account_url=account_url, credential=credential)
+
 
 def load_price_data(blob_service, coin: str) -> pd.DataFrame:
     """Load price data from blob storage."""
@@ -40,6 +54,7 @@ def load_price_data(blob_service, coin: str) -> pd.DataFrame:
     
     df = pd.read_parquet(stream)
     return df[["timestamp", "close"]]
+
 
 def run_backtest(prices: pd.DataFrame, fast_ma: int, slow_ma: int) -> dict:
     """
@@ -130,6 +145,7 @@ def process_job(blob_service, job: dict) -> dict:
 def worker_loop():
     """Main worker loop. Pulls jobs until queue is empty."""
     print("Worker starting...")
+    print(f"Storage account: {STORAGE_ACCOUNT_NAME}")
     print(f"Queue: {QUEUE_NAME}")
     print(f"Data container: {DATA_CONTAINER}")
     print(f"Results container: {RESULTS_CONTAINER}")
@@ -177,8 +193,8 @@ def worker_loop():
 
 
 if __name__ == "__main__":
-    if not STORAGE_CONNECTION_STRING:
-        print("ERROR: AZURE_STORAGE_CONNECTION_STRING environment variable not set")
+    if not STORAGE_ACCOUNT_NAME:
+        print("ERROR: AZURE_STORAGE_ACCOUNT_NAME environment variable not set")
         exit(1)
     
     worker_loop()
