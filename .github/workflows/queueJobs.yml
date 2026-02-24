@@ -1,4 +1,4 @@
-name: 5 - Push Jobs to Queue
+name: Push Jobs to Queue
 
 on:
   push:
