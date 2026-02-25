@@ -1,7 +1,7 @@
 name: Push Jobs to Queue
 
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   push:
