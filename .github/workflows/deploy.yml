@@ -89,7 +89,7 @@ jobs:
           deploymentName: database
 
   compute:
-    needs: database
+    needs: storage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -106,6 +106,5 @@ jobs:
           scope: resourcegroup
           resourceGroupName: RG-backtest-enginge-distributed
           template: ./infra/compute.json
-          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" transformVmName=${{ secrets.VM_NAME }}
+          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }} transformVmSize=Standard_D4s_v3 vmssVmSize=Standard_D4s_v3
           deploymentName: compute
-          #delete this line
