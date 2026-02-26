@@ -31,7 +31,7 @@
     },
     "transformVmSize": {
       "type": "string",
-      "defaultValue": "Standard_B2ts_v2",
+      "defaultValue": "Standard_B2s",
       "metadata": {
         "description": "Size of the transform VM"
       }
@@ -274,34 +274,6 @@
             ]
           }
         }
-      }
-    },
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2022-04-01",
-      "name": "[guid(resourceGroup().id, variables('vmssName'), variables('storageBlobDataContributorRole'))]",
-      "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataContributorRole'))]",
-        "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName')), '2023-07-01', 'Full').identity.principalId]",
-        "principalType": "ServicePrincipal"
-      }
-    },
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2022-04-01",
-      "name": "[guid(resourceGroup().id, variables('vmssName'), variables('storageQueueDataContributorRole'))]",
-      "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageQueueDataContributorRole'))]",
-        "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName')), '2023-07-01', 'Full').identity.principalId]",
-        "principalType": "ServicePrincipal"
       }
     }
   ],
