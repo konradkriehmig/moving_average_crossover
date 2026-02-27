@@ -2,9 +2,22 @@ name: Deploy Infrastructure
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: 'What to deploy'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - network
+          - storage
+          - database
+          - compute
 
 jobs:
   rg:
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'rg' }}
     runs-on: ubuntu-latest
     
     steps:
@@ -27,6 +40,7 @@ jobs:
 
   network:
     needs: rg
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'network' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -48,6 +62,7 @@ jobs:
 
   storage:
     needs: network
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storage' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -69,6 +84,7 @@ jobs:
 
   database:
     needs: network
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'database' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -90,6 +106,7 @@ jobs:
 
   compute:
     needs: storage
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'compute' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
