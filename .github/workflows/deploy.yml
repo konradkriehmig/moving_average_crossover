@@ -17,7 +17,7 @@ on:
 
 jobs:
   _1-rg:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '_1-rg' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '1-rg' }}
     runs-on: ubuntu-latest
     
     steps:
@@ -39,7 +39,7 @@ jobs:
               --tags project=backtest
 
   _2-network:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '_2-network' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '2-network' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -60,7 +60,7 @@ jobs:
           deploymentName: network
 
   _3-storage:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '_3-storage' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '3-storage' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -81,7 +81,7 @@ jobs:
           deploymentName: storage
 
   _4-database:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '_4-database' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '4-database' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -102,7 +102,7 @@ jobs:
           deploymentName: database
 
   _5-compute:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '_5-compute' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '5-compute' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
