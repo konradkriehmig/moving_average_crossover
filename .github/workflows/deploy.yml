@@ -9,11 +9,11 @@ on:
         default: 'all'
         type: choice
         options:
-          - all
-          - network
-          - storage
-          - database
-          - compute
+          - 1-rg
+          - 2-network
+          - 3-storage
+          - 4-database
+          - 5-scompute
 
 jobs:
   _1-rg:
