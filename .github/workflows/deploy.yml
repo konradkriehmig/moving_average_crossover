@@ -121,3 +121,25 @@ jobs:
           template: ./infra/compute.json
           parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }} transformVmSize=Standard_D4s_v3 vmssVmSize=Standard_D4s_v3
           deploymentName: compute
+
+      - name: Assign Storage Roles to VMSS
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            # Get VMSS principal ID
+            PRINCIPAL_ID=$(az vmss identity show \
+              --name backtest-workers \
+              --resource-group RG-backtest-enginge-distributed \
+              --query principalId -o tsv)
+            
+            # Assign Blob Data Contributor
+            az role assignment create \
+              --assignee $PRINCIPAL_ID \
+              --role "Storage Blob Data Contributor" \
+              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/RG-backtest-enginge-distributed/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
+            
+            # Assign Queue Data Contributor
+            az role assignment create \
+              --assignee $PRINCIPAL_ID \
+              --role "Storage Queue Data Contributor" \
+              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/RG-backtest-enginge-distributed/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
