@@ -16,7 +16,7 @@ on:
           - compute
 
 jobs:
-  rg:
+  _1-rg:
     if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'rg' }}
     runs-on: ubuntu-latest
     
@@ -38,7 +38,7 @@ jobs:
               --location eastus \
               --tags project=backtest
 
-  network:
+  _2-network:
     if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'network' }}
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
           parameters: location=canadacentral
           deploymentName: network
 
-  storage:
+  _3-storage:
     if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storage' }}
     runs-on: ubuntu-latest
     steps:
@@ -80,7 +80,7 @@ jobs:
           parameters: location=canadacentral storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
           deploymentName: storage
 
-  database:
+  _4-database:
     if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'database' }}
     runs-on: ubuntu-latest
     steps:
@@ -101,7 +101,7 @@ jobs:
           parameters: location=canadacentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=${{ secrets.POSTGRES_NAME }}
           deploymentName: database
 
-  compute:
+  _5-compute:
     if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'compute' }}
     runs-on: ubuntu-latest
     steps:
