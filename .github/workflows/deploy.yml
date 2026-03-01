@@ -9,17 +9,22 @@ on:
         default: 'all'
         type: choice
         options:
-          - 1-rg
-          - 2-network
-          - 3-storage
-          - 4-database
-          - 5-scompute
+          - all
+          - network
+          - storage
+          - database
+          - compute
+          - push-jobs
+
+env:
+  RESOURCE_GROUP: RG-backtest-enginge-distributed
+  LOCATION: canadacentral
 
 jobs:
-  _1-rg:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '1-rg' }}
+  # Network
+  network:
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'network' }}
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,33 +39,23 @@ jobs:
         with:
           inlineScript: |
             az group create \
-              --name RG-backtest-enginge-distributed \
-              --location eastus \
-              --tags project=backtest
-
-  _2-network:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '2-network' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+              --name ${{ env.RESOURCE_GROUP }} \
+              --location ${{ env.LOCATION }} \
+              --tags project=backtest environment=dev
 
       - name: Deploy Network
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: RG-backtest-enginge-distributed
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./infra/network.json
-          parameters: location=canadacentral
+          parameters: location=${{ env.LOCATION }}
           deploymentName: network
 
-  _3-storage:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '3-storage' }}
+  # Storage
+  storage:
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storage') }}
+    needs: network
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,13 +70,15 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: RG-backtest-enginge-distributed
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./infra/storage.json
-          parameters: location=canadacentral storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
+          parameters: location=${{ env.LOCATION }} storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
           deploymentName: storage
 
-  _4-database:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '4-database' }}
+  # Database
+  database:
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'database') }}
+    needs: storage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -96,13 +93,15 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: RG-backtest-enginge-distributed
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./infra/database.json
-          parameters: location=canadacentral administratorPassword=${{ secrets.POSTGRES_PASSWORD }} serverName=${{ secrets.POSTGRES_NAME }}
+          parameters: location=${{ env.LOCATION }} administratorPassword=${{ secrets.POSTGRES_PASSWORD }}
           deploymentName: database
 
-  _5-compute:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '5-compute' }}
+  # Compute
+  compute:
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'compute') }}
+    needs: database
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -117,9 +116,9 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          resourceGroupName: RG-backtest-enginge-distributed
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./infra/compute.json
-          parameters: location=canadacentral adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }} transformVmSize=Standard_D4s_v3 vmssVmSize=Standard_D4s_v3
+          parameters: location=${{ env.LOCATION }} adminPublicKey="${{ secrets.SSH_PUBLIC_KEY }}" storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }} transformVmSize=Standard_D4s_v3 vmssVmSize=Standard_D4s_v3
           deploymentName: compute
 
       - name: Assign Storage Roles to VMSS
@@ -129,17 +128,44 @@ jobs:
             # Get VMSS principal ID
             PRINCIPAL_ID=$(az vmss identity show \
               --name backtest-workers \
-              --resource-group RG-backtest-enginge-distributed \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
               --query principalId -o tsv)
             
             # Assign Blob Data Contributor
             az role assignment create \
               --assignee $PRINCIPAL_ID \
               --role "Storage Blob Data Contributor" \
-              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/RG-backtest-enginge-distributed/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
+              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
             
             # Assign Queue Data Contributor
             az role assignment create \
               --assignee $PRINCIPAL_ID \
               --role "Storage Queue Data Contributor" \
-              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/RG-backtest-enginge-distributed/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
+              --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Storage/storageAccounts/${{ secrets.STORAGE_ACCOUNT_NAME }}
+
+  # Push Jobs
+  push-jobs:
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'push-jobs') }}
+    needs: compute
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install azure-storage-queue azure-storage-blob azure-identity
+
+      - name: Push jobs to queue
+        env:
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+        run: python push_jobs.py
