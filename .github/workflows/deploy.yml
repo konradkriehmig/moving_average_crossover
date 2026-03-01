@@ -9,20 +9,37 @@ on:
         default: 'all'
         type: choice
         options:
-          - all
-          - network
-          - storage
-          - database
-          - compute
-
-env:
-  RESOURCE_GROUP: RG-backtest-enginge-distributed
-  LOCATION: canadacentral
+          - 1-rg
+          - 2-network
+          - 3-storage
+          - 4-database
+          - 5-scompute
 
 jobs:
-  # Network
+  rg:
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '1-rg' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            az group create \
+              --name RG-backtest-enginge-distributed \
+              --location eastus \
+              --tags project=backtest
+
   network:
-    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'network' }}
+    if: ${{ github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '2-network' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -53,7 +70,7 @@ jobs:
 
   # Storage
   storage:
-    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'storage') }}
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '3-storage') }}
     needs: network
     runs-on: ubuntu-latest
     steps:
@@ -76,7 +93,7 @@ jobs:
 
   # Database
   database:
-    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'database') }}
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '4-database') }}
     needs: storage
     runs-on: ubuntu-latest
     steps:
@@ -99,7 +116,7 @@ jobs:
 
   # Compute
   compute:
-    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'compute') }}
+    if: ${{ always() && (github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == '5-compute') }}
     needs: database
     runs-on: ubuntu-latest
     steps:
